@@ -5,7 +5,7 @@ namespace App\Parser;
 
 use App\CUrl;
 
-abstract class AbstractParser
+abstract class AbstractParser implements ParserInterface
 {
     protected $curl;
 

@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace App;
 
-use App\Writer\Excel;
-use App\Writer\Text;
 use App\Writer\WriterInterface;
 use DI\Container;
 
