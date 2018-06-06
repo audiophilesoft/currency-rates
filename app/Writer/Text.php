@@ -4,11 +4,8 @@ declare(strict_types=1);
 namespace App\Writer;
 
 
-use App\Settings;
-
-class Text implements WriterInterface
+class Text extends AbstractWriter
 {
-    private $settings;
 
     /**
      * @var \SplFileObject
@@ -16,14 +13,7 @@ class Text implements WriterInterface
     private $file;
 
 
-    public function __construct(Settings $settings)
-    {
-        $this->settings = $settings;
-        $this->init();
-    }
-
-
-    private function init()
+    public function init(): void
     {
         $this->file = new \SplFileObject($this->settings->get('txt_path'), 'a+');
     }
@@ -31,7 +21,7 @@ class Text implements WriterInterface
 
     public function write(array $currencies): void
     {
-        $strings = self::floatsToStrings($currencies);
+        $strings = $this->data_converter->floatsToStrings($currencies);
         $format = (new \DateTime())->format('d-m-Y') . "\r\n=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\r\n\r\n";
 
         $formatted = sprintf($format,
@@ -49,15 +39,6 @@ class Text implements WriterInterface
         );
 
         $this->file->fwrite($formatted);
-    }
-
-
-    private static function floatsToStrings(array $floats)
-    {
-        return array_map(function (float $float) {
-            return str_replace('.', ',', (string)round($float, (int)(3 - floor(log10($float)))));
-        }, $floats);
-
     }
 
 }

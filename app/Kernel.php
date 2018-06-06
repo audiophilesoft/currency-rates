@@ -3,13 +3,16 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Writer\Excel;
 use App\Writer\Text;
+use App\Writer\WriterInterface;
 use DI\Container;
 
 class Kernel
 {
 
-    private const CODE_FORMATTING = 'formatting';
+    private const CODE_FORMATTING_TASK_ID = 'formatting';
+    private const OUTPUT_INIT_TASK_ID = 'output initialization';
 
 
     private $service_container;
@@ -20,8 +23,13 @@ class Kernel
     private $currency_providers = [];
 
 
-    public function __construct(Container $service_container, Settings $settings, Console $console, Profiler $profiler, Text $writer)
-    {
+    public function __construct(
+        Container $service_container,
+        Settings $settings,
+        Console $console,
+        Profiler $profiler,
+        WriterInterface $writer
+    ) {
         $this->service_container = $service_container;
         $this->settings = $settings;
         $this->console = $console;
@@ -46,6 +54,13 @@ class Kernel
     public function run()
     {
         $currencies = [];
+
+        $this->console->writeMessage('Output initialization...');
+        $this->profiler->start(self::OUTPUT_INIT_TASK_ID);
+        $this->writer->init();
+        $this->profiler->finish(self::OUTPUT_INIT_TASK_ID);
+        $this->console->writeMessage('Done in ' . $this->profiler->getDuration(self::OUTPUT_INIT_TASK_ID) . ' s');
+
         foreach ($this->currency_providers as $currency => $provider) {
             $this->console->writeMessage("Getting Minfin $currency from " . get_class($provider) . '...');
             $this->profiler->start($currency);
@@ -55,10 +70,10 @@ class Kernel
         }
 
         $this->console->writeMessage('Formatting file...');
-        $this->profiler->start(self::CODE_FORMATTING);
+        $this->profiler->start(self::CODE_FORMATTING_TASK_ID);
         $this->writer->write($currencies);
-        $this->profiler->finish(self::CODE_FORMATTING);
-        $this->console->writeMessage('Done in ' . $this->profiler->getDuration(self::CODE_FORMATTING) . ' s');
+        $this->profiler->finish(self::CODE_FORMATTING_TASK_ID);
+        $this->console->writeMessage('Done in ' . $this->profiler->getDuration(self::CODE_FORMATTING_TASK_ID) . ' s');
     }
 
 }

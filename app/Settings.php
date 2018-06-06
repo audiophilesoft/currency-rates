@@ -6,11 +6,15 @@ namespace App;
 class Settings
 {
     private $root_dir;
+    private $settings_dir;
+    private $settings_file_name;
     private $data;
 
 
-    public function __construct()
+    public function __construct(string $dir, string $file_name)
     {
+        $this->settings_dir = $dir;
+        $this->settings_file_name = $file_name;
         $this->loadData();
     }
 
@@ -24,7 +28,7 @@ class Settings
 
     private function getSettingsFilePath(): string
     {
-        return $this->getRootDir() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'app.php';
+        return $this->settings_dir . DIRECTORY_SEPARATOR . $this->settings_file_name;
     }
 
 
@@ -39,7 +43,7 @@ class Settings
 
     public function getRootDir(): string
     {
-        return $this->root_dir ?? $this->root_dir = realpath(__DIR__ . '/../');
+        return $this->root_dir ?? $this->root_dir = realpath( $this->settings_dir . '/../');
     }
 
 }
