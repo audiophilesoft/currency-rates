@@ -14,5 +14,5 @@ return [
         'RUB/HRN' => App\Parser\Minfin::class,
         'RUB/DOL' => App\Parser\SberBankRF::class
     ],
-    'txt_path' => 'D:\\courses.txt'
+    'txt_path' => 'courses.txt'
 ];
