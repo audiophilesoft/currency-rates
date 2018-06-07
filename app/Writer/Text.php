@@ -13,13 +13,13 @@ class Text extends AbstractWriter
     private $file;
 
 
-    public function init(): void
+    public function doInit(): void
     {
         $this->file = new \SplFileObject($this->settings->get('txt_path'), 'a+');
     }
 
 
-    public function write(array $currencies): void
+    public function doWrite(array $currencies): void
     {
         $strings = $this->data_converter->floatsToStrings($currencies);
         $format = (new \DateTime())->format('d-m-Y') . "\r\n=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\r\n\r\n";

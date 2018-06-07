@@ -5,35 +5,65 @@ namespace App\Writer;
 
 use App\DataConverter;
 use App\Settings;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
+use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
 
 class Excel extends AbstractWriter
 {
-    private $worksheet;
+
+    /**
+     * @var Spreadsheet
+     */
+    private $spreadsheet;
+
+    /**
+     * @var XlsxReader
+     */
+    private $reader;
+
+    /**
+     * @var XlsxWriter
+     */
+    private $writer;
 
     private const FILE_PATH = 'D:/test.xlsx';
     private const WORKSHEET_NAME = 'Курсы';
+    private const FILE_TYPE = 'Xlsx';
 
-    public function init(): void
+    public function __construct(Settings $settings, DataConverter $data_converter, XlsxReader $reader, XlsxWriter $writer)
     {
-        $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile(self::FILE_PATH);
-        $reader->setLoadSheetsOnly(self::WORKSHEET_NAME);
-        $this->worksheet = $reader->load(self::FILE_PATH)->getActiveSheet();
+        parent::__construct($settings, $data_converter);
+        $this->reader = $reader;
+        $this->writer = $writer;
     }
 
 
-    public function write(array $currencies): void
+    public function doInit(): void
     {
-        $x =1;
+        $this->spreadsheet =  $this->reader->load(self::FILE_PATH);
+        $this->writer->setSpreadsheet($this->spreadsheet);
     }
 
-    private static function floatsToStrings(array $floats)
+    private function getWorksheet(): Worksheet
     {
-        return array_map(function (float $float) {
-            return str_replace('.', ',', (string)round($float, (int)(3 - floor(log10($float)))));
-        }, $floats);
+        return $this->spreadsheet->getSheetByName(self::WORKSHEET_NAME);
+    }
 
+    private function saveFile()
+    {
+        $this->writer->save(self::FILE_PATH);
+    }
+
+
+    public function doWrite(array $currencies): void
+    {
+        $worksheet = $this->getWorksheet();
+        $last_row = $worksheet->getHighestRow();
+        $date = (new \DateTime)->format('d.m.Y');
+        $worksheet->setCellValueByColumnAndRow(1, $last_row+1, $date);
+        $this->saveFile();
     }
 
 }

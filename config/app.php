@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 return [
     'currency_provides' =>  [
         'HRN/RUB' => App\Parser\Minfin::class,
