@@ -6,5 +6,5 @@ namespace App\Task;
 
 interface HandlerInterface
 {
-    public function run(Task $task): string;
+    public function run(Task $task);
 }

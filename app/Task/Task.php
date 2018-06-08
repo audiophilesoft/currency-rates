@@ -6,31 +6,61 @@ namespace App\Task;
 
 class Task
 {
-    protected $code;
+    protected $id;
     protected $name;
-    protected $call;
+    protected $function;
+    protected $status_code = 0;
+    protected $error;
 
-    public function __construct(callable $call, int $code, string $name = null)
+
+    public const CODE_RUNNING = 1;
+    public const CODE_FINISHED = 2;
+    public const CODE_FAIL = 3;
+
+    public function __construct(callable $function, string $id, string $name = null)
     {
-        $this->call = $call;
-        $this->code = $code;
+        $this->function = $function;
+        $this->id = $id;
         $this->name = $name;
     }
 
-    public function getCode(): int
+    public function run(): void
     {
-        return $this->code;
+        try {
+            ($this->function)();
+        } catch (\Throwable $th) {
+            $this->status_code = self::CODE_FAIL;
+            $this->error = $th->getMessage();
+            return;
+        }
+
+        $this->status_code = self::CODE_FINISHED;
     }
 
-    public function run()
+
+
+    public function getStatusCode(): int
     {
-        return ($this->call)();
+        return $this->status_code;
     }
 
 
-    public function setCode(int $code): void
+    public function getError(): ?string
     {
-        $this->code = $code;
+        return $this->error;
+    }
+
+
+
+    public function getId(): string
+    {
+        return $this->id;
+    }
+
+
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
 

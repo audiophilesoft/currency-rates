@@ -3,45 +3,43 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Task\Handler as TaskHandler;
+use App\Task\TaskFactory;
 use App\Writer\WriterInterface;
 use DI\Container;
 
 class Kernel
 {
 
-    private const CODE_FORMATTING_TASK_ID = 'formatting';
-    private const OUTPUT_INIT_TASK_ID = 'output initialization';
+    private const CODE_FORMATTING_TASK_CODE = 'formatting';
+    private const OUTPUT_INIT_TASK_CODE = 'output initialization';
 
 
     private $service_container;
     private $settings;
-    private $console;
-    private $profiler;
     private $writer;
+    private $task_factory;
     private $currency_providers = [];
+    private $currencies = [];
 
 
     public function __construct(
         Container $service_container,
         Settings $settings,
-        Console $console,
-        Profiler $profiler,
-        WriterInterface $writer
-    )
-    {
+        WriterInterface $writer,
+        TaskFactory $task_factory,
+        TaskHandler $task_handler
+    ) {
         $this->service_container = $service_container;
         $this->settings = $settings;
-        $this->console = $console;
-        $this->profiler = $profiler;
         $this->writer = $writer;
+        $this->task_factory = $task_factory;
+        $this->task_handler = $task_handler;
         $this->configure();
     }
 
 
-    /**
-     * @throws \DI\DependencyException
-     * @throws \DI\NotFoundException
-     */
+
     protected function configure(): void
     {
         foreach ($this->settings->get('currency_provides') as $currency => $loader_class) {
@@ -52,27 +50,53 @@ class Kernel
 
     public function run()
     {
-        $currencies = [];
+        $this->initOutput();
+        $this->gatherCurrencies();
+        $this->saveCurrencies();
+    }
 
-        $this->console->writeMessage('Output initialization...');
-        $this->profiler->start(self::OUTPUT_INIT_TASK_ID);
-        $this->writer->init();
-        $this->profiler->finish(self::OUTPUT_INIT_TASK_ID);
-        $this->console->writeMessage('Done in ' . $this->profiler->getDuration(self::OUTPUT_INIT_TASK_ID) . ' s');
+
+    private function initOutput()
+    {
+        $task = $this->task_factory->create(
+            function () {
+                $this->writer->init();
+            },
+            self::OUTPUT_INIT_TASK_CODE, 'Output initialization'
+        );
+
+        $this->task_handler->run($task);
+    }
+
+
+    private function gatherCurrencies(): void
+    {
+
 
         foreach ($this->currency_providers as $currency => $provider) {
-            $this->console->writeMessage("Getting Minfin $currency from " . get_class($provider) . '...');
-            $this->profiler->start($currency);
-            $currencies[$currency] = $provider->get($currency);
-            $this->profiler->finish($currency);
-            $this->console->writeMessage('Done in ' . $this->profiler->getDuration($currency) . ' s');
-        }
 
-        $this->console->writeMessage('Formatting file...');
-        $this->profiler->start(self::CODE_FORMATTING_TASK_ID);
-        $this->writer->write($currencies);
-        $this->profiler->finish(self::CODE_FORMATTING_TASK_ID);
-        $this->console->writeMessage('Done in ' . $this->profiler->getDuration(self::CODE_FORMATTING_TASK_ID) . ' s');
+            $task = $this->task_factory->create(
+                function () use ($provider, $currency) {
+                    $this->currencies[$currency] = $provider->get($currency);
+                },
+                $currency, "Getting $currency from " . get_class($provider)
+            );
+
+            $this->task_handler->run($task);
+        }
+    }
+
+
+    private function saveCurrencies(): void
+    {
+        $task = $this->task_factory->create(
+            function () {
+                $this->writer->write($this->currencies);
+            },
+            self::CODE_FORMATTING_TASK_CODE, 'Formatting file'
+        );
+
+        $this->task_handler->run($task);
     }
 
 }

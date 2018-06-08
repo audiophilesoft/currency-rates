@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 namespace App\Writer;
 
-use App\DataConverter;
-use App\Settings;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
-use PhpOffice\PhpSpreadsheet\Reader\Xlsx as XlsxReader;
+use App\{
+    DataConverter, Settings
+};
+use PhpOffice\PhpSpreadsheet\{
+    Reader\Xlsx as XlsxReader, Spreadsheet, Worksheet\Worksheet, Writer\Xlsx as XlsxWriter
+};
 
 class Excel extends AbstractWriter
 {

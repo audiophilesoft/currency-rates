@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace App\Writer;
 
-use App\DataConverter;
-use App\Settings;
+use App\{
+    DataConverter, Settings
+};
 
 abstract class AbstractWriter implements WriterInterface
 {

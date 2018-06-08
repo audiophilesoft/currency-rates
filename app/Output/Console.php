@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace App;
+namespace App\Output;
 
-class Console
+class Console implements OutputInterface
 {
     public function writeMessage(string $message): void
     {

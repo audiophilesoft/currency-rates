@@ -12,7 +12,7 @@ class Minfin extends AbstractParser
     private const USER_AGENT = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.75 Safari/537.36 Vivaldi/1.0.219.3';
 
     private const PARSER_PARAMS_RUB = [
-        'url' => 'http://minfin.com.ua/currency/auction/rub/buy/all/',
+        'url' => 'http://minfiвn.com.ua/currency/auction/rub/buy/all/',
         'pattern' => '/([0-9]{1}\,[0-9]{3})/',
         'containing_tag' => 'small',
         'depth' => 3,
