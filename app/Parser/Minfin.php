@@ -66,15 +66,15 @@ class Minfin extends AbstractParser
     }
 
 
-    private function getDOLData(): array
-    {
-        return $this->dol_data ?? $this->dol_data = $this->find(self::PARSER_PARAMS_DOL);
-    }
-
-
     private function getRUBData(): array
     {
         return $this->rub_data ?? $this->rub_data = $this->find(self::PARSER_PARAMS_RUB);
+    }
+
+
+    private function getDOLData(): array
+    {
+        return $this->dol_data ?? $this->dol_data = $this->find(self::PARSER_PARAMS_DOL);
     }
 
 }

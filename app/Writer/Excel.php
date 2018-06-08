@@ -17,20 +17,11 @@ class Excel extends AbstractWriter
      * @var Spreadsheet
      */
     private $spreadsheet;
-
-    /**
-     * @var XlsxReader
-     */
     private $reader;
-
-    /**
-     * @var XlsxWriter
-     */
     private $writer;
 
     private const FILE_PATH = 'D:/test.xlsx';
     private const WORKSHEET_NAME = 'Курсы';
-    private const FILE_TYPE = 'Xlsx';
 
     public function __construct(Settings $settings, DataConverter $data_converter, XlsxReader $reader, XlsxWriter $writer)
     {

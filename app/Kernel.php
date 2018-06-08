@@ -19,6 +19,7 @@ class Kernel
     private $settings;
     private $writer;
     private $task_factory;
+    private $task_handler;
     private $currency_providers = [];
     private $currencies = [];
 

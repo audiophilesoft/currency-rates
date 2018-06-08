@@ -5,6 +5,10 @@ namespace App\Parser;
 
 trait HtmlParserTrait
 {
+
+    /**
+     * @var \DOMDocument
+     */
     private $dom;
     private $loaded_url;
 
@@ -29,7 +33,7 @@ trait HtmlParserTrait
         return null;
     }
 
-    private static function hasAttributeValues($item, array $data)
+    private static function hasAttributeValues(\DOMElement $item, array $data)
     {
         foreach ($data as $attribute => $value) {
             if ($item->getAttribute($attribute) !== $value) {
@@ -40,6 +44,8 @@ trait HtmlParserTrait
         return true;
     }
 
+
+    /** @noinspection PhpUnusedPrivateMethodInspection */
     private static function castToFloat(string $str): float
     {
         return (float)str_replace(',', '.', $str);
