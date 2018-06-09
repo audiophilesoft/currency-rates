@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Parser;
 
 
-use App\CUrl;
+use Curl\Curl;
 
 class WebMoney extends AbstractParser
 {
@@ -27,13 +27,16 @@ class WebMoney extends AbstractParser
     private function reconfigureCurl()
     {
         $class = get_class($this->curl);
-        $this->curl = new $class(self::CURL_OPTIONS);
+        $this->curl = new $class();
+        foreach(self::CURL_OPTIONS as $option => $value) {
+            $this->curl->setOpt($option, $value);
+        }
     }
 
 
     private function getCourse(int $type, string $attr = 'inoutrate'): float
     {
-        $xml = new \SimpleXMLElement($this->curl->getUrlBody(self::URL . $type));
+        $xml = new \SimpleXMLElement($this->curl->get(self::URL . $type));
         return (float)str_replace(',', '.', (string)$xml->WMExchnagerQuerys->query[1][$attr]);
     }
 
