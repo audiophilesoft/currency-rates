@@ -72,8 +72,6 @@ class Kernel
 
     private function gatherCurrencies(): void
     {
-
-
         foreach ($this->currency_providers as $currency => $provider) {
 
             $task = $this->task_factory->create(
@@ -94,7 +92,7 @@ class Kernel
             function () {
                 $this->writer->write($this->currencies);
             },
-            self::CODE_FORMATTING_TASK_CODE, 'Formatting file'
+            self::CODE_FORMATTING_TASK_CODE, 'Formatting file ' . $this->writer->getFilePath()
         );
 
         $this->task_handler->run($task);

@@ -28,15 +28,15 @@ abstract class AbstractWriter implements WriterInterface
 
     abstract protected function doInit(): void;
 
-    public function write(array $currencies): void
+    public function write(array $currencies): bool
     {
         if ($this->is_initialized !== true) {
             throw new \Exception('You must initialize writer first');
         }
 
-        $this->doWrite($currencies);
+        return $this->doWrite($currencies);
     }
 
 
-    abstract protected function doWrite(array $currencies): void;
+    abstract protected function doWrite(array $currencies): bool;
 }

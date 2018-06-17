@@ -19,7 +19,7 @@ class Text extends AbstractWriter
     }
 
 
-    public function doWrite(array $currencies): void
+    public function doWrite(array $currencies): bool
     {
         $strings = $this->data_converter->floatsToStrings($currencies);
         $format = (new \DateTime())->format('d-m-Y') . "\r\n=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\r\n\r\n";
@@ -38,7 +38,12 @@ class Text extends AbstractWriter
             $strings['RUB/DOL']
         );
 
-        $this->file->fwrite($formatted);
+        return (bool)$this->file->fwrite($formatted);
+    }
+
+    public function getFilePath(): string
+    {
+        return $this->file->getRealPath();
     }
 
 }

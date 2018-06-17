@@ -6,8 +6,8 @@ namespace App\Writer;
 
 interface WriterInterface
 {
-    public function write(array $currencies): void;
+    public function write(array $currencies): bool;
 
-    public function init(): void;
+    public function getFilePath(): string;
 
 }
