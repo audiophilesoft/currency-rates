@@ -43,7 +43,7 @@ class Kernel
 
     protected function configure(): void
     {
-        foreach ($this->settings->get('currency_provides') as $currency => $loader_class) {
+        foreach ($this->settings->get('currency_providers') as $currency => $loader_class) {
             $this->currency_providers[$currency] = $this->service_container->get($loader_class);
         }
     }

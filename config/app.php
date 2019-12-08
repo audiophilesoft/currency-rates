@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 return [
-    'currency_provides' =>  [
+    'currency_providers' => [
         'HRN/RUB' => App\Parser\Minfin::class,
         'HRN/DOL' => App\Parser\Minfin::class,
         'HRN/RUR' => App\Parser\PrivatBank::class,
@@ -14,5 +14,5 @@ return [
         'RUB/HRN' => App\Parser\Minfin::class,
         'RUB/DOL' => App\Parser\SberBankRF::class
     ],
-    'txt_path' => 'courses.txt'
+    'txt_path' => 'D:\courses.txt'
 ];
