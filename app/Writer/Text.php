@@ -1,27 +1,23 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Writer;
 
+use SplFileObject;
 
 class Text extends AbstractWriter
 {
+    private SplFileObject $file;
 
-    /**
-     * @var \SplFileObject
-     */
-    private $file;
-
-
-    public function doInit(): void
+    protected function init(string $filePath): void
     {
-        $this->file = new \SplFileObject($this->settings->get('txt_path'), 'a+');
+        $this->file = new SplFileObject($filePath, 'a+');
     }
 
-
-    public function doWrite(array $currencies): bool
+    public function write(array $currencies): void
     {
-        $strings = $this->data_converter->floatsToStrings($currencies);
+        $strings = $this->dataConverter->floatsToStrings($currencies);
         $format = (new \DateTime())->format('d-m-Y') . "\r\n=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\r\n\r\n";
 
         $formatted = sprintf($format,
@@ -38,12 +34,6 @@ class Text extends AbstractWriter
             $strings['RUB/DOL']
         );
 
-        return (bool)$this->file->fwrite($formatted);
+        $this->file->fwrite($formatted); // todo: handle errors
     }
-
-    public function getFilePath(): string
-    {
-        return $this->file->getRealPath();
-    }
-
 }

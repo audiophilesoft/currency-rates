@@ -4,65 +4,61 @@ declare(strict_types=1);
 
 namespace App;
 
+use App\Input\Console\ArgumentsHandler;
 use App\Task\Handler as TaskHandler;
 use App\Task\TaskFactory;
+use App\Writer\WriterFactory;
+use App\Writer\WriterFactoryInterface;
 use App\Writer\WriterInterface;
-use DI\Container;
+use DI\FactoryInterface;
 
 class Kernel
 {
-    private const CODE_FORMATTING_TASK_CODE = 'formatting';
-    private const OUTPUT_INIT_TASK_CODE = 'output_initialization';
+    private const TASK_CODE_CODE_FORMATTING = 'formatting';
+    private const TASK_CODE_OUTPUT_INIT = 'output_initialization';
 
     private $serviceContainer;
     private $settings;
-    private $writer;
+    private WriterFactoryInterface $writerFactory;
     private $taskFactory;
     private $taskHandler;
     private $currencyProviders = [];
     private $currencies = [];
+    private ArgumentsHandler $argumentsHandler;
+
 
     public function __construct(
-        Container $serviceContainer,
+        FactoryInterface $serviceContainer,
         Settings $settings,
-        WriterInterface $writer,
+        WriterFactoryInterface $writerFactory,
         TaskFactory $taskFactory,
-        TaskHandler $taskHandler
+        TaskHandler $taskHandler,
+        ArgumentsHandler $argumentsHandler
     ) {
         $this->serviceContainer = $serviceContainer;
         $this->settings = $settings;
-        $this->writer = $writer;
+        $this->writerFactory = $writerFactory;
         $this->taskFactory = $taskFactory;
         $this->taskHandler = $taskHandler;
-        $this->configure();
+        $this->argumentsHandler = $argumentsHandler;
+        $this->initLoaders();
     }
 
-    protected function configure(): void
+
+    protected function initLoaders(): void
     {
-        foreach ($this->settings->get('currency_providers') as $currency => $loader_class) {
-            $this->currencyProviders[$currency] = $this->serviceContainer->get($loader_class);
+        foreach ($this->settings->get('currency_providers') as $currency => $loaderClass) {
+            $this->currencyProviders[$currency] = $this->serviceContainer->get($loaderClass);
         }
     }
 
+
     public function run()
     {
-        $this->initOutput();
-        $this->gatherCurrencies();
+        //$this->gatherCurrencies();
         $this->saveCurrencies();
     }
 
-    private function initOutput()
-    {
-        $task = $this->taskFactory->create(
-            function () {
-                $this->writer->init();
-            },
-            self::OUTPUT_INIT_TASK_CODE,
-            'Output initialization'
-        );
-
-        $this->taskHandler->run($task);
-    }
 
     private function gatherCurrencies(): void
     {
@@ -79,16 +75,29 @@ class Kernel
         }
     }
 
+
     private function saveCurrencies(): void
     {
+        $writer = $this->getWriter();
         $task = $this->taskFactory->create(
-            function () {
-                $this->writer->write($this->currencies);
-            },
-            self::CODE_FORMATTING_TASK_CODE,
-            'Formatting file ' . $this->writer->getFilePath()
+            fn() => $writer->write($this->currencies),
+            self::TASK_CODE_CODE_FORMATTING,
+            'Formatting file ' . $this->getFilePath()
         );
 
         $this->taskHandler->run($task);
+    }
+
+    private function getWriter(): ?WriterInterface
+    {
+        $class = $this->settings->get('writers_map')[$this->argumentsHandler->getArgumentValue($this->argumentsHandler::ARGUMENT_FORMAT) ?? $this->settings->get('default_format')] ;
+        return $this->serviceContainer->make($class, ['filePath' => $this->getFilePath()]);
+    }
+
+
+    protected function getFilePath(): string
+    {
+        return $this->argumentsHandler->getArgumentValue($this->argumentsHandler::ARGUMENT_FILE_NAME) ??
+            $this->settings->get('default_file_path');
     }
 }

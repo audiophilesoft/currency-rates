@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Writer;
@@ -12,20 +13,20 @@ use PhpOffice\PhpSpreadsheet\{
 
 class Excel extends AbstractWriter
 {
+    private Spreadsheet $spreadsheet;
+    private XlsxReader $reader;
+    private XlsxWriter $writer;
 
-    /**
-     * @var Spreadsheet
-     */
-    private $spreadsheet;
-    private $reader;
-    private $writer;
-
-    private const FILE_PATH = 'D:/test.xlsx';
+    protected const FILE_EXTENSION = 'xlsx';
     private const WORKSHEET_NAME = 'Курсы';
 
-    public function __construct(Settings $settings, DataConverter $data_converter, XlsxReader $reader, XlsxWriter $writer)
-    {
-        parent::__construct($settings, $data_converter);
+    public function __construct(
+        Settings $settings,
+        DataConverter $dataConverter,
+        XlsxReader $reader,
+        XlsxWriter $writer
+    ) {
+        parent::__construct($settings, $dataConverter);
         $this->reader = $reader;
         $this->writer = $writer;
     }
@@ -33,27 +34,30 @@ class Excel extends AbstractWriter
 
     public function doInit(): void
     {
-        $this->spreadsheet =  $this->reader->load(self::FILE_PATH);
+        $this->spreadsheet = $this->reader->load(self::FILE_PATH);
         $this->writer->setSpreadsheet($this->spreadsheet);
     }
+
 
     private function getWorksheet(): Worksheet
     {
         return $this->spreadsheet->getSheetByName(self::WORKSHEET_NAME);
     }
 
-    private function saveFile()
+
+    private function saveFile(): void
     {
         $this->writer->save(self::FILE_PATH);
     }
 
 
-    public function doWrite(array $currencies): void
+    public function write(array $currencies): void
     {
         $worksheet = $this->getWorksheet();
         $last_row = $worksheet->getHighestRow();
         $date = (new \DateTime)->format('d.m.Y');
-        $worksheet->setCellValueByColumnAndRow(1, $last_row+1, $date);
+        $worksheet->setCellValueByColumnAndRow(1, $last_row + 1, $date);
+
         $this->saveFile();
     }
 

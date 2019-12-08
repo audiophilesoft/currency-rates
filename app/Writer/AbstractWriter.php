@@ -9,34 +9,18 @@ use App\{
 
 abstract class AbstractWriter implements WriterInterface
 {
-    protected $settings;
-    protected $data_converter;
-    protected $is_initialized = false;
+    protected Settings $settings;
+    protected DataConverter $dataConverter;
 
-    public function __construct(Settings $settings, DataConverter $data_converter)
+    public function __construct($filePath, Settings $settings, DataConverter $dataConverter)
     {
+        $this->init($filePath);
         $this->settings = $settings;
-        $this->data_converter = $data_converter;
-
+        $this->dataConverter = $dataConverter;
     }
 
-    public function init(): void
-    {
-        $this->doInit();
-        $this->is_initialized = true;
-    }
+    abstract protected function init(string $filePath): void;
 
-    abstract protected function doInit(): void;
+    abstract public function write(array $currencies): void;
 
-    public function write(array $currencies): bool
-    {
-        if ($this->is_initialized !== true) {
-            throw new \Exception('You must initialize writer first');
-        }
-
-        return $this->doWrite($currencies);
-    }
-
-
-    abstract protected function doWrite(array $currencies): bool;
 }

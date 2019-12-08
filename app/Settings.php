@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App;
@@ -43,7 +44,7 @@ class Settings
 
     public function getRootDir(): string
     {
-        return $this->root_dir ?? $this->root_dir = realpath( $this->settings_dir . '/../');
+        return $this->root_dir ?? $this->root_dir = realpath($this->settings_dir . '/../');
     }
 
 }

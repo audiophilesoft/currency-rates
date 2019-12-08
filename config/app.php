@@ -14,5 +14,10 @@ return [
         'RUB/HRN' => App\Parser\Minfin::class,
         'RUB/DOL' => App\Parser\SberBankRF::class
     ],
-    'txt_path' => 'D:\courses.txt'
+    'default_file_path' => 'D:\courses',
+    'default_format' => 'txt',
+    'writers_map' => [
+        'txt' => \App\Writer\Text::class,
+        'xlsx' => \App\Writer\Excel::class
+    ]
 ];

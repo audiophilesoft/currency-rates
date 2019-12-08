@@ -5,7 +5,7 @@ namespace App;
 
 class DataConverter
 {
-    private $precision;
+    private int $precision;
 
     public function __construct(int $precision = 4)
     {

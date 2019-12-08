@@ -4,10 +4,9 @@ declare(strict_types = 1);
 require_once 'vendor/autoload.php';
 
 try {
-
-    $di_config = require('config/di.php');
+    $diConfig = require('config/di.php');
     $builder = new \DI\ContainerBuilder;
-    $builder->addDefinitions($di_config);
+    $builder->addDefinitions($diConfig);
 
     $container = $builder->build();
     $kernel = $container->get(\App\Kernel::class);
