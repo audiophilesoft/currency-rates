@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App;
@@ -10,44 +11,38 @@ use DI\Container;
 
 class Kernel
 {
-
     private const CODE_FORMATTING_TASK_CODE = 'formatting';
-    private const OUTPUT_INIT_TASK_CODE = 'output initialization';
+    private const OUTPUT_INIT_TASK_CODE = 'output_initialization';
 
-
-    private $service_container;
+    private $serviceContainer;
     private $settings;
     private $writer;
-    private $task_factory;
-    private $task_handler;
-    private $currency_providers = [];
+    private $taskFactory;
+    private $taskHandler;
+    private $currencyProviders = [];
     private $currencies = [];
 
-
     public function __construct(
-        Container $service_container,
+        Container $serviceContainer,
         Settings $settings,
         WriterInterface $writer,
-        TaskFactory $task_factory,
-        TaskHandler $task_handler
+        TaskFactory $taskFactory,
+        TaskHandler $taskHandler
     ) {
-        $this->service_container = $service_container;
+        $this->serviceContainer = $serviceContainer;
         $this->settings = $settings;
         $this->writer = $writer;
-        $this->task_factory = $task_factory;
-        $this->task_handler = $task_handler;
+        $this->taskFactory = $taskFactory;
+        $this->taskHandler = $taskHandler;
         $this->configure();
     }
-
-
 
     protected function configure(): void
     {
         foreach ($this->settings->get('currency_providers') as $currency => $loader_class) {
-            $this->currency_providers[$currency] = $this->service_container->get($loader_class);
+            $this->currencyProviders[$currency] = $this->serviceContainer->get($loader_class);
         }
     }
-
 
     public function run()
     {
@@ -56,46 +51,44 @@ class Kernel
         $this->saveCurrencies();
     }
 
-
     private function initOutput()
     {
-        $task = $this->task_factory->create(
+        $task = $this->taskFactory->create(
             function () {
                 $this->writer->init();
             },
-            self::OUTPUT_INIT_TASK_CODE, 'Output initialization'
+            self::OUTPUT_INIT_TASK_CODE,
+            'Output initialization'
         );
 
-        $this->task_handler->run($task);
+        $this->taskHandler->run($task);
     }
-
 
     private function gatherCurrencies(): void
     {
-        foreach ($this->currency_providers as $currency => $provider) {
-
-            $task = $this->task_factory->create(
+        foreach ($this->currencyProviders as $currency => $provider) {
+            $task = $this->taskFactory->create(
                 function () use ($provider, $currency) {
                     $this->currencies[$currency] = $provider->get($currency);
                 },
-                $currency, "Getting $currency from " . get_class($provider)
+                $currency,
+                "Getting $currency from " . get_class($provider)
             );
 
-            $this->task_handler->run($task);
+            $this->taskHandler->run($task);
         }
     }
 
-
     private function saveCurrencies(): void
     {
-        $task = $this->task_factory->create(
+        $task = $this->taskFactory->create(
             function () {
                 $this->writer->write($this->currencies);
             },
-            self::CODE_FORMATTING_TASK_CODE, 'Formatting file ' . $this->writer->getFilePath()
+            self::CODE_FORMATTING_TASK_CODE,
+            'Formatting file ' . $this->writer->getFilePath()
         );
 
-        $this->task_handler->run($task);
+        $this->taskHandler->run($task);
     }
-
 }
