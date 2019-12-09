@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2be3dca2140a71300a5af96dc1530115",
+    "content-hash": "ee00f844c9a0e01ee0c3fc438401a15e",
     "packages": [
         {
             "name": "box/spout",
@@ -855,6 +855,35 @@
                 "shim"
             ],
             "time": "2019-11-27T13:56:44+00:00"
+        },
+        {
+            "name": "tkovrijenko/float-formatter",
+            "version": "1.0",
+            "source": {
+                "type": "git",
+                "url": "https://tkovrijenko@bitbucket.org/tkovrijenko/float-formatter.git",
+                "reference": "68828cc6d6087e419a07f179e8fabf025cb64293"
+            },
+            "require": {
+                "php": ">=7.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TKovrijenko\\FloatFormatter\\": ""
+                }
+            },
+            "license": [
+                "CC"
+            ],
+            "authors": [
+                {
+                    "name": "Taras Kovryzhenko",
+                    "email": "taras.kovrizhenko@gmail.com"
+                }
+            ],
+            "description": "Formats float numbers to string in different ways",
+            "time": "2019-12-09T08:56:34+00:00"
         }
     ],
     "packages-dev": [],
@@ -864,7 +893,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.2.0"
+        "php": ">=7.4.0"
     },
     "platform-dev": []
 }
