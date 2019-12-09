@@ -14,6 +14,7 @@ use DI\Container;
 class Kernel
 {
     private const TASK_CODE_CODE_FORMATTING = 'formatting';
+    private const TASK_CODE_OUTPUT_INITIALIZATION = 'output_initialization';
 
     private Container $serviceContainer;
     private $settings;
@@ -52,7 +53,8 @@ class Kernel
     public function run()
     {
         $this->gatherCurrencies();
-        $this->saveCurrencies();
+        $writer = $this->getWriter();
+        $this->saveCurrencies($writer);
     }
 
     private function gatherCurrencies(): void
@@ -70,9 +72,8 @@ class Kernel
         }
     }
 
-    private function saveCurrencies(): void
+    private function saveCurrencies(WriterInterface $writer): void
     {
-        $writer = $this->getWriter();
         $task = $this->taskFactory->create(
             fn() => $writer->write($this->currencies),
             self::TASK_CODE_CODE_FORMATTING,
@@ -84,7 +85,13 @@ class Kernel
 
     private function getWriter(): ?WriterInterface
     {
-        return $this->writerResolver->get($this->getFormat(), ['filePath' => $this->getFilePath()]);
+        $task = $this->taskFactory->create(
+            fn() => $this->writerResolver->get($this->getFormat(), ['filePath' => $this->getFilePath()]),
+            self::TASK_CODE_OUTPUT_INITIALIZATION,
+            'Output initialization for '.$this->getFormat()
+        );
+
+        return $this->taskHandler->run($task);
     }
 
     private function getFormat(): string

@@ -1,17 +1,16 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Task;
 
-
 class Task
 {
-    protected $id;
-    protected $name;
-    protected $function;
-    protected $status_code = 0;
-    protected $error;
-
+    protected string $id;
+    protected string $name;
+    protected \Closure $function;
+    protected int $statusCode;
+    protected string $error;
 
     public const CODE_RUNNING = 1;
     public const CODE_FINISHED = 2;
@@ -24,51 +23,43 @@ class Task
         $this->name = $name;
     }
 
-    public function run(): void
+    public function run()
     {
         try {
-            ($this->function)();
+            $this->statusCode = self::CODE_RUNNING;
+            $result = ($this->function)();
+            $this->statusCode = self::CODE_FINISHED;
+            return $result;
         } catch (\Throwable $th) {
-            $this->status_code = self::CODE_FAIL;
+            $this->statusCode = self::CODE_FAIL;
             $this->error = $th->getMessage();
-            return;
         }
-
-        $this->status_code = self::CODE_FINISHED;
     }
-
-
 
     public function getStatusCode(): int
     {
-        return $this->status_code;
+        return $this->statusCode;
     }
-
 
     public function getError(): ?string
     {
         return $this->error;
     }
 
-
-
     public function getId(): string
     {
         return $this->id;
     }
-
 
     public function setId(string $id): void
     {
         $this->id = $id;
     }
 
-
     public function getName(): string
     {
         return $this->name;
     }
-
 
     public function setName(string $name): void
     {

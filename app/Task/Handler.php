@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Task;
@@ -9,8 +10,8 @@ use App\{
 
 class Handler implements HandlerInterface
 {
-    protected $output;
-    protected $profiler;
+    private OutputInterface $output;
+    private ProfilerInterface $profiler;
 
     public function __construct(OutputInterface $output, ProfilerInterface $profiler)
     {
@@ -18,19 +19,19 @@ class Handler implements HandlerInterface
         $this->profiler = $profiler;
     }
 
-
-    public function run(Task $task): void
+    public function run(Task $task)
     {
         $id = $task->getId();
-        $this->output->writeMessage($task->getName() . '...');
+        $this->output->writeMessage($task->getName().'...');
         $this->profiler->start($id);
-        $task->run();
+        $result = $task->run();
         $this->profiler->finish($id);
 
         if ($task->getStatusCode() === Task::CODE_FINISHED) {
-            $this->output->writeMessage('Done in ' . $this->profiler->getDuration($id) . ' s');
+            $this->output->writeMessage('Done in '.$this->profiler->getDuration($id).' s');
         }
 
+        return $result;
     }
 
 }
