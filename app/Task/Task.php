@@ -23,17 +23,21 @@ class Task
         $this->name = $name;
     }
 
+    /**
+     * @return mixed|null
+     */
     public function run()
     {
         try {
             $this->statusCode = self::CODE_RUNNING;
             $result = ($this->function)();
             $this->statusCode = self::CODE_FINISHED;
-            return $result;
         } catch (\Throwable $th) {
             $this->statusCode = self::CODE_FAIL;
             $this->error = $th->getMessage();
         }
+
+        return $result ?? null;
     }
 
     public function getStatusCode(): int

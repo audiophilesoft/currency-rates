@@ -17,8 +17,8 @@ class Text extends AbstractWriter
 
     public function write(array $currencies): void
     {
-        $strings = $this->dataConverter->floatsToStrings($currencies);
-        $format = (new \DateTime())->format('d-m-Y') . "\r\n=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\t=%s\t=%s\t=%s\r\n=%s\t=%s\r\n\r\n";
+        $strings = $this->converter->convert($currencies);
+        $format = (new \DateTime())->format('d-m-Y') . "\r\n%s\t%s\t%s\t%s\r\n%s\t%s\t%s\t%s\t%s\r\n%s\t%s\r\n\r\n";
 
         $formatted = sprintf($format,
             $strings['HRN/DOL'],

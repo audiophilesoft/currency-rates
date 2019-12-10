@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace App\Writer;
 
 use App\{
-    DataConverter, Settings
+    FloatToStringConverter, Settings
 };
 
 abstract class AbstractWriter implements WriterInterface
 {
     protected Settings $settings;
-    protected DataConverter $dataConverter;
+    protected FloatToStringConverter $converter;
 
-    public function __construct($filePath, Settings $settings, DataConverter $dataConverter)
+    public function __construct($filePath, Settings $settings, FloatToStringConverter $converter)
     {
         $this->init($filePath);
         $this->settings = $settings;
-        $this->dataConverter = $dataConverter;
+        $this->converter = $converter;
     }
 
     abstract protected function init(string $filePath): void;

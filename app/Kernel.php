@@ -17,11 +17,10 @@ class Kernel
     private const TASK_CODE_OUTPUT_INITIALIZATION = 'output_initialization';
 
     private Container $serviceContainer;
-    private $settings;
-    private $taskFactory;
-    private $taskHandler;
+    private Settings $settings;
+    private TaskFactory $taskFactory;
+    private TaskHandler $taskHandler;
     private array $currencyProviders;
-    private array $currencies;
     private ArgumentsHandler $argumentsHandler;
     private WriterResolver $writerResolver;
 
@@ -52,32 +51,46 @@ class Kernel
 
     public function run()
     {
-        $this->gatherCurrencies();
+//        $currencies = $this->gatherCurrencies();
+        $currencies = array (
+            'HRN/RUB' => 0.36599999999999999,
+            'HRN/DOL' => 23.600000000000001,
+            'HRN/RUR' => 0.33800000000000002,
+            'HRN/USD' => 23.449999999999999,
+            'HRN/WMZ' => 23.109999999999999,
+            'HRN/WMR' => 0.36179450072358904,
+            'HRN/WMB' => 11.449999999999999,
+            'DOL/HRN' => 0.042283298097251586,
+            'DOL/RUB' => 0.016147263038914905,
+            'RUB/HRN' => 2.7100271002710028,
+            'RUB/DOL' => 61.93,
+        );
         $writer = $this->getWriter();
-        $this->saveCurrencies($writer);
+        $this->saveCurrencies($currencies, $writer);
     }
 
-    private function gatherCurrencies(): void
+    private function gatherCurrencies(): array
     {
+        $currencies = [];
         foreach ($this->currencyProviders as $currency => $provider) {
             $task = $this->taskFactory->create(
-                function () use ($provider, $currency) {
-                    $this->currencies[$currency] = $provider->get($currency);
-                },
+                fn() => $provider->get($currency),
                 $currency,
-                "Getting $currency from ".get_class($provider)
+                "Getting $currency from " . get_class($provider)
             );
 
-            $this->taskHandler->run($task);
+            $currencies[$currency] = $this->taskHandler->run($task);
         }
+
+        return $currencies;
     }
 
-    private function saveCurrencies(WriterInterface $writer): void
+    private function saveCurrencies(array $currencies, WriterInterface $writer): void
     {
         $task = $this->taskFactory->create(
-            fn() => $writer->write($this->currencies),
+            fn() => $writer->write($currencies),
             self::TASK_CODE_CODE_FORMATTING,
-            'Formatting file '.$this->getFilePath()
+            'Formatting file ' . $this->getFilePath()
         );
 
         $this->taskHandler->run($task);
@@ -88,7 +101,7 @@ class Kernel
         $task = $this->taskFactory->create(
             fn() => $this->writerResolver->get($this->getFormat(), ['filePath' => $this->getFilePath()]),
             self::TASK_CODE_OUTPUT_INITIALIZATION,
-            'Output initialization for '.$this->getFormat()
+            'Output initialization for ' . $this->getFormat()
         );
 
         return $this->taskHandler->run($task);

@@ -22,16 +22,31 @@ class Handler implements HandlerInterface
     public function run(Task $task)
     {
         $id = $task->getId();
-        $this->output->writeMessage($task->getName().'...');
+        $this->output->writeMessage($task->getName() . '...');
         $this->profiler->start($id);
-        $result = $task->run();
+        try {
+            $result = $task->run();
+        } catch (\Throwable $th) {
+        }
         $this->profiler->finish($id);
 
-        if ($task->getStatusCode() === Task::CODE_FINISHED) {
-            $this->output->writeMessage('Done in '.$this->profiler->getDuration($id).' s');
-        }
+        $this->output->writeMessage($this->getTaskMessage($task));
 
-        return $result;
+        return $result ?? null;
+    }
+
+    private function getTaskMessage(Task $task): string
+    {
+        switch ($task->getStatusCode()) {
+            case Task::CODE_FINISHED:
+                return 'Done in ' . $this->profiler->getDuration($task->getId()) . ' s';
+            case Task::CODE_FAIL:
+                return 'Failed with error: ' . $task->getError();
+            case Task::CODE_RUNNING:
+                return 'The task is still running (inconsistency)';
+            default:
+                return 'The task has wrong status code: ' . $task->getStatusCode();
+        }
     }
 
 }

@@ -8,7 +8,7 @@ class ArgumentsHandler
 {
     private array $arguments;
 
-    public const ARGUMENT_FILE_NAME = 'file-name';
+    public const ARGUMENT_FILE_NAME = 'file-path';
     public const ARGUMENT_FORMAT = 'format';
 
     private const ARGUMENTS_LONG = [
